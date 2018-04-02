@@ -31,10 +31,18 @@ class Task():
         #reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
         #return reward
 
-        reward = self.sim.v[2]
-        reward -= 0.25 * (abs(self.sim.pose[:2] - self.target_pos[:2])).sum()
-        reward -= 0.5 * abs(self.sim.pose[2] - self.target_pos[2])
-        reward -= (abs(self.sim.pose[3:6])).sum()
+        reward = 0.0
+
+        # Reward positive velocity along z-axis
+        reward += self.sim.v[2]
+
+        # Reward positions close to target along z-axis
+        reward -= (abs(self.sim.pose[ 2] - self.target_pos[ 2])) / 2.0 
+
+        # A lower sensativity towards drifting in the xy-plane
+        reward -= (abs(self.sim.pose[:2] - self.target_pos[:2])).sum() / 4.0
+
+        # Negative reward for angular velocities
         reward -= (abs(self.sim.angular_v[:3])).sum()
 
         return reward
